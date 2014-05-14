@@ -1,9 +1,10 @@
 #include "lur.h"
 #include "lua.h"
-#include "lualib.h"
+//#include "lualib.h"
 #include "lauxlib.h"
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
 struct lur {
     lua_State* L;
@@ -77,7 +78,7 @@ lur_getfloat(struct lur* self, const char* key, float def) {
     int top = lua_gettop(L);
 
     float r;
-    if (!lua_istable(L, -1) ||
+    if (
         _getvalue(L, key) || 
         !lua_isnumber(L, -1)) {
         r = def;
@@ -160,9 +161,7 @@ lur_unroot(struct lur* self) {
 
 const char*
 lur_dofile(struct lur* self, const char* file, const char* root) {
-    if (file[0] == '\0') {
-        return "no file";
-    }
+    assert(file);
     lua_State* L = self->L;
     int r = luaL_dofile(L, file);
     if (r != LUA_OK) {
@@ -183,8 +182,9 @@ lur_dofile(struct lur* self, const char* file, const char* root) {
 struct lur*
 lur_create() {
     struct lur* self = malloc(sizeof(*self));
-    self->L = luaL_newstate();
-    luaL_openlibs(self->L);
+    lua_State *L = luaL_newstate();
+    //luaL_openlibs(L);
+    self->L = L;
     return self;
 }
 
