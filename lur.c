@@ -21,7 +21,7 @@ _dump(lua_State* L) {
 */
 
 static int
-_getvalue(lua_State* L, const char* key) {
+_lua_getvalue(lua_State* L, const char* key) {
     char* first = strchr(key, '.');
     if (first == NULL) {
         lua_pushstring(L, key);
@@ -78,8 +78,8 @@ lur_getfloat(struct lur* self, const char* key, float def) {
     int top = lua_gettop(L);
 
     float r;
-    if (
-        _getvalue(L, key) || 
+    if (!lua_istable(L, -1) ||
+        _lua_getvalue(L, key) || 
         !lua_isnumber(L, -1)) {
         r = def;
     } else {
@@ -96,7 +96,7 @@ lur_getstr(struct lur* self, const char* key, const char* def) {
  
     const char* r;
     if (!lua_istable(L, -1) ||
-        _getvalue(L, key) || 
+        _lua_getvalue(L, key) || 
         !lua_isstring(L, -1)) {
         r = def;
     } else {
@@ -109,9 +109,12 @@ lur_getstr(struct lur* self, const char* key, const char* def) {
 int
 lur_getnode(struct lur* self, const char* key) {
     struct lua_State* L = self->L;
+    if (!lua_istable(L, -1)) {
+        return 0;
+    }
     int top = lua_gettop(L);
-
-    if (_getvalue(L, key) || !lua_istable(L, -1)) {
+    if (_lua_getvalue(L, key) || 
+        !lua_istable(L, -1)) {
         lua_settop(L, top);
         return 0;
     }
