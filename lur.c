@@ -77,7 +77,9 @@ lur_getfloat(struct lur* self, const char* key, float def) {
     int top = lua_gettop(L);
 
     float r;
-    if (_getvalue(L, key) || !lua_isnumber(L, -1)) {
+    if (!lua_istable(L, -1) ||
+        _getvalue(L, key) || 
+        !lua_isnumber(L, -1)) {
         r = def;
     } else {
         r = lua_tonumber(L, -1);   
@@ -92,7 +94,9 @@ lur_getstr(struct lur* self, const char* key, const char* def) {
     int top = lua_gettop(L);
  
     const char* r;
-    if (_getvalue(L, key) || !lua_isstring(L, -1)) {
+    if (!lua_istable(L, -1) ||
+        _getvalue(L, key) || 
+        !lua_isstring(L, -1)) {
         r = def;
     } else {
         r = lua_tostring(L, -1); 
